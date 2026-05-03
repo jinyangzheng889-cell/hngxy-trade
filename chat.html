@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.json">
+<title>私聊 - 河南工学院校园二手交易平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="css/style.css">
+<script>tailwind.config={theme:{extend:{colors:{hngxy:{blue:'#2563eb',light:'#eff6ff',dark:'#1e40af'}}}}}</script>
+</head>
+<body data-page="chat" class="bg-gray-50 min-h-screen flex flex-col">
+
+<div data-nav></div>
+
+<div class="flex-1 flex flex-col max-w-2xl mx-auto w-full px-4 py-4" id="chatContainer">
+  <!-- JS 动态渲染 -->
+</div>
+
+<div data-footer></div>
+
+<script src="js/script.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const productId = params.get('product');
+const sellerId = params.get('seller');
+const sellerName = decodeURIComponent(params.get('name') || '对方');
+const product = getProductById(productId);
+const currentUser = getCurrentUser();
+
+if (!currentUser) {
+  document.getElementById('chatContainer').innerHTML = `
+    <div class="text-center py-20">
+      <div class="text-6xl mb-4">🔐</div>
+      <p class="text-gray-500 mb-4">请先登录后再使用私聊功能</p>
+      <a href="login.html" class="inline-block px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">去登录</a>
+    </div>`;
+} else {
+  const messages = getOrCreateChat(productId, sellerId);
+  renderChat(messages);
+}
+
+function renderChat(messages) {
+  document.getElementById('chatContainer').innerHTML = `
+    <!-- 聊天顶部栏 -->
+    <div class="bg-white rounded-t-2xl shadow-sm p-4 flex items-center gap-3 border-b">
+      <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">${sellerName[0]}</div>
+      <div class="flex-1">
+        <div class="font-medium text-gray-800 text-sm">${sellerName}</div>
+        ${product ? `<div class="text-xs text-gray-400">关于：${product.name} · ¥${product.price}</div>` : ''}
+      </div>
+    </div>
+
+    <!-- 消息列表 -->
+    <div id="msgList" class="bg-white flex-1 overflow-y-auto p-4 space-y-3 min-h-[50vh]" style="max-height:55vh">
+      ${messages.length === 0 ? '<p class="text-center text-gray-400 text-sm py-10">发送第一条消息开始交流吧~</p>' : ''}
+      ${messages.map(m => {
+        const isMe = m.from === currentUser.id;
+        return `
+          <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+            <div class="${isMe ? 'chat-bubble-right' : 'chat-bubble-left'} text-sm">
+              ${!isMe ? `<div class="text-xs text-gray-400 mb-1">${escHtml(m.fromName)}</div>` : ''}
+              <p>${escHtml(m.text)}</p>
+              <div class="text-xs ${isMe ? 'text-blue-200' : 'text-gray-400'} mt-1">${new Date(m.createdAt).toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})}</div>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>
+
+    <!-- 输入区 -->
+    <div class="bg-white rounded-b-2xl shadow-sm p-4 border-t flex gap-3">
+      <input type="text" id="msgInput" placeholder="输入消息..." class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+      <button onclick="sendMsg()" class="px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition btn-hover">发送</button>
+    </div>
+  `;
+
+  // 滚动到底部
+  setTimeout(() => {
+    const list = document.getElementById('msgList');
+    if (list) list.scrollTop = list.scrollHeight;
+  }, 100);
+}
+
+function sendMsg() {
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const messages = sendMessage(productId, sellerId, text);
+  input.value = '';
+  renderChat(messages);
+}
+
+// 回车发送
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.activeElement === document.getElementById('msgInput')) {
+    sendMsg();
+  }
+});
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.json">
+<title>注册 - 河南工学院校园二手交易平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="css/style.css">
+<script>tailwind.config={theme:{extend:{colors:{hngxy:{blue:'#2563eb',light:'#eff6ff',dark:'#1e40af'}}}}}</script>
+</head>
+<body data-page="register" class="bg-gray-50 min-h-screen flex flex-col">
+
+<div data-nav></div>
+
+<div class="flex-1 flex items-center justify-center px-4 py-8">
+  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md animate-slide-up">
+    <div class="text-center mb-6">
+      <img src="images/emblem.jpg" alt="校徽" class="w-16 h-16 rounded-2xl object-cover mx-auto mb-3">
+      <h2 class="text-xl font-bold text-gray-800">创建账号</h2>
+      <p class="text-gray-400 text-sm mt-1">加入河南工学院二手交易平台</p>
+    </div>
+
+    <form id="registerForm" class="space-y-4" onsubmit="handleRegister(event)">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+        <input type="text" id="regUsername" placeholder="请输入用户名" required
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">手机号码</label>
+        <input type="text" id="regPhone" placeholder="请输入手机号码" required
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+        <p class="text-xs text-gray-400 mt-1">请输入11位有效手机号码，后续将支持短信验证</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">登录密码</label>
+        <input type="password" id="regPassword" placeholder="请设置密码" required minlength="6"
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">确认密码</label>
+        <input type="password" id="regPassword2" placeholder="请再次输入密码" required
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+      </div>
+      <p class="text-xs text-gray-400 leading-relaxed">
+        注册即表示同意 <span class="text-blue-600">《用户协议》</span>和<span class="text-blue-600">《隐私政策》</span>
+      </p>
+      <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition btn-hover">
+        注册
+      </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-400 mt-6">
+      已有账号？<a href="login.html" class="text-blue-600 hover:underline font-medium">去登录</a>
+    </p>
+  </div>
+</div>
+
+<div data-footer></div>
+
+<script src="js/script.js"></script>
+<script>
+async function handleRegister(e) {
+  e.preventDefault();
+  const username = document.getElementById('regUsername').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const password2 = document.getElementById('regPassword2').value;
+
+  if (!username || !phone || !password || !password2) { showToast('请填写所有字段', 'error'); return; }
+  if (password.length < 6) { showToast('密码至少6位', 'error'); return; }
+  if (password !== password2) { showToast('两次输入的密码不一致', 'error'); return; }
+  if (!/^1[3-9]\d{9}$/.test(phone)) { showToast('请输入正确的11位手机号码', 'error'); return; }
+
+  const result = await registerUser(username, phone, password);
+  if (result.ok) {
+    showToast('注册成功！即将跳转到登录页');
+    setTimeout(() => { window.location.href = 'login.html'; }, 1200);
+  } else {
+    showToast(result.msg, 'error');
+  }
+}
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.json">
+<title>个人中心 - 河南工学院校园二手交易平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="css/style.css">
+<script>tailwind.config={theme:{extend:{colors:{hngxy:{blue:'#2563eb',light:'#eff6ff',dark:'#1e40af'}}}}}</script>
+</head>
+<body data-page="profile" class="bg-gray-50 min-h-screen flex flex-col">
+
+<div data-nav></div>
+
+<div class="max-w-3xl mx-auto px-4 py-8 w-full" id="profileContent">
+  <!-- JS 动态渲染 -->
+</div>
+
+<div data-footer></div>
+
+<script src="js/script.js"></script>
+<script>
+const currentUser = getCurrentUser();
+
+if (!currentUser) {
+  document.getElementById('profileContent').innerHTML = `
+    <div class="text-center py-20">
+      <div class="text-6xl mb-4">🔐</div>
+      <p class="text-gray-500 mb-4">请先登录后查看个人中心</p>
+      <a href="login.html" class="inline-block px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">去登录</a>
+    </div>`;
+} else {
+  renderProfile();
+}
+
+const ORDER_STATUS = { paid:{ label:'已付款·资金托管', icon:'🔒', color:'text-yellow-600', bg:'bg-yellow-50' }, shipped:{ label:'卖家已发货', icon:'📦', color:'text-blue-600', bg:'bg-blue-50' }, completed:{ label:'交易完成', icon:'✅', color:'text-green-600', bg:'bg-green-50' }, cancelled:{ label:'已取消', icon:'❌', color:'text-gray-400', bg:'bg-gray-50' } };
+
+function renderProfile() {
+  const myProducts = getProducts({ sellerId: currentUser.id });
+  const myFavorites = getMyFavorites();
+  const buyOrders = getBuyOrders();
+  const sellOrders = getSellOrders();
+
+  document.getElementById('profileContent').innerHTML = `
+    <!-- 个人信息卡片 -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-6 text-white mb-6 animate-slide-up">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold backdrop-blur">${currentUser.username[0]}</div>
+        <div>
+          <h2 class="text-xl font-bold">${currentUser.username}</h2>
+          <p class="text-blue-100 text-sm">${currentUser.phone ? '手机：' + currentUser.phone : '河南工学院'}</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 gap-3 mt-6 text-center">
+        <div class="bg-white/10 rounded-xl py-3 backdrop-blur">
+          <div class="text-2xl font-bold">${myProducts.length}</div>
+          <div class="text-xs text-blue-100 mt-1">已发布</div>
+        </div>
+        <div class="bg-white/10 rounded-xl py-3 backdrop-blur">
+          <div class="text-2xl font-bold">${myFavorites.length}</div>
+          <div class="text-xs text-blue-100 mt-1">已收藏</div>
+        </div>
+        <div class="bg-white/10 rounded-xl py-3 backdrop-blur">
+          <div class="text-2xl font-bold">${buyOrders.filter(o=>o.status!=='cancelled').length}</div>
+          <div class="text-xs text-blue-100 mt-1">已买到</div>
+        </div>
+        <div class="bg-white/10 rounded-xl py-3 backdrop-blur">
+          <div class="text-2xl font-bold">${sellOrders.filter(o=>o.status!=='cancelled').length}</div>
+          <div class="text-xs text-blue-100 mt-1">已卖出</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 功能板块 -->
+    <div class="space-y-4">
+      <!-- 我买到的（担保交易） -->
+      <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b flex items-center justify-between">
+          <h3 class="font-bold text-gray-800">🔒 我买到的</h3>
+          <span class="text-xs text-gray-400">${buyOrders.length} 笔订单</span>
+        </div>
+        ${buyOrders.length === 0 ? '<p class="text-center text-gray-400 text-sm py-8">暂无购买订单</p>' : ''}
+        <div class="divide-y">
+          ${buyOrders.map(o => renderOrder(o, 'buyer')).join('')}
+        </div>
+      </div>
+
+      <!-- 我卖出的 -->
+      <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b flex items-center justify-between">
+          <h3 class="font-bold text-gray-800">💰 我卖出的</h3>
+          <span class="text-xs text-gray-400">${sellOrders.length} 笔订单</span>
+        </div>
+        ${sellOrders.length === 0 ? '<p class="text-center text-gray-400 text-sm py-8">暂无卖出订单</p>' : ''}
+        <div class="divide-y">
+          ${sellOrders.map(o => renderOrder(o, 'seller')).join('')}
+        </div>
+      </div>
+
+      <!-- 我的发布 -->
+      <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b flex items-center justify-between">
+          <h3 class="font-bold text-gray-800">我的发布</h3>
+          <span class="text-xs text-gray-400">${myProducts.length} 件</span>
+        </div>
+        ${myProducts.length === 0 ? '<p class="text-center text-gray-400 text-sm py-8">暂无发布的商品</p>' : ''}
+        <div class="divide-y">
+          ${myProducts.map(p => `
+            <div class="p-4 flex items-center gap-3 hover:bg-gray-50 transition">
+              <div class="w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">${catIcon(p.category)}</div>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-medium text-gray-800 text-sm truncate">${p.name}</h4>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-red-500 font-bold">¥${p.price}</span>
+                  <span class="text-xs text-gray-400">${p.condition}</span>
+                </div>
+              </div>
+              <div class="flex gap-2 flex-shrink-0">
+                <button onclick="editProduct('${p.id}')" class="px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition">编辑</button>
+                <button onclick="removeProduct('${p.id}')" class="px-3 py-1.5 text-xs bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition">删除</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- 我的收藏 -->
+      <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b">
+          <h3 class="font-bold text-gray-800">我的收藏</h3>
+        </div>
+        ${myFavorites.length === 0 ? '<p class="text-center text-gray-400 text-sm py-8">暂无收藏的商品</p>' : ''}
+        <div class="divide-y">
+          ${myFavorites.map(p => `
+            <a href="detail.html?id=${p.id}" class="p-4 flex items-center gap-3 hover:bg-gray-50 transition block">
+              <div class="w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">${catIcon(p.category)}</div>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-medium text-gray-800 text-sm truncate">${p.name}</h4>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-red-500 font-bold">¥${p.price}</span>
+                  <span class="text-xs text-gray-400">${p.sellerName}</span>
+                </div>
+              </div>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- 退出登录 -->
+      <button onclick="doLogout()" class="w-full py-3 bg-red-50 text-red-500 rounded-xl font-medium hover:bg-red-100 transition text-sm">
+        退出登录
+      </button>
+    </div>
+  `;
+}
+
+function renderOrder(o, role) {
+  const s = ORDER_STATUS[o.status] || ORDER_STATUS.paid;
+  let actions = '';
+  if (o.status === 'paid' && role === 'seller') {
+    actions = `<button onclick="shipOrder('${o.id}')" class="px-3 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">确认发货</button>`;
+  } else if (o.status === 'shipped' && role === 'buyer') {
+    actions = `<button onclick="receiveOrder('${o.id}')" class="px-3 py-1.5 text-xs bg-green-500 text-white rounded-lg hover:bg-green-600 transition">确认收货</button>`;
+  } else if (o.status === 'paid' && role === 'buyer') {
+    actions = `<button onclick="cancelOrder('${o.id}')" class="px-3 py-1.5 text-xs bg-gray-200 text-gray-500 rounded-lg hover:bg-gray-300 transition">取消订单</button>`;
+  }
+  return `
+    <div class="p-4 hover:bg-gray-50 transition">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs px-2 py-0.5 rounded-full ${s.bg} ${s.color}">${s.icon} ${s.label}</span>
+        <span class="text-xs text-gray-400">${new Date(o.createdAt).toLocaleString('zh-CN')}</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex-1 min-w-0">
+          <h4 class="font-medium text-gray-800 text-sm truncate">${o.productName}</h4>
+          <div class="flex items-center gap-3 mt-1 text-xs text-gray-400">
+            <span class="text-red-500 font-bold">¥${o.price}</span>
+            <span>${role === 'buyer' ? '卖家：' + o.sellerName : '买家：' + o.buyerName}</span>
+          </div>
+        </div>
+        ${actions}
+      </div>
+    </div>`;
+}
+
+function shipOrder(oid) {
+  if (confirm('确认已发货？')) {
+    updateOrderStatus(oid, 'shipped');
+    showToast('已标记为发货');
+    renderProfile();
+  }
+}
+
+function receiveOrder(oid) {
+  if (confirm('确认收到商品？确认后资金将打款给卖家。')) {
+    updateOrderStatus(oid, 'completed');
+    showToast('交易完成！资金已打款给卖家');
+    renderProfile();
+  }
+}
+
+function cancelOrder(oid) {
+  if (confirm('确定取消订单？')) {
+    updateOrderStatus(oid, 'cancelled');
+    showToast('订单已取消');
+    renderProfile();
+  }
+}
+
+function catIcon(cat) {
+  const icons = { digital:'💻', book:'📚', clothes:'👗', life:'🏠', sports:'⚽' };
+  return icons[cat] || '📦';
+}
+
+function removeProduct(pid) {
+  if (confirm('确定要删除这个商品吗？')) {
+    deleteProduct(pid);
+    showToast('已删除');
+    renderProfile();
+  }
+}
+
+function editProduct(pid) {
+  showToast('编辑功能（模拟）：可跳转到发布页修改', 'info');
+}
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+}
+</script>
+</body>
+</html>

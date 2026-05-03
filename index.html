@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<title>河南工学院校园二手交易平台</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="css/style.css">
+<script>tailwind.config={theme:{extend:{colors:{hngxy:{blue:'#2563eb',light:'#eff6ff',dark:'#1e40af'}}}}}</script>
+</head>
+<body data-page="index" class="bg-gray-50 min-h-screen">
+
+<div data-nav></div>
+
+<!-- 搜索区 -->
+<section class="bg-gradient-to-r from-blue-600 to-blue-500 text-white py-8 sm:py-10">
+  <div class="max-w-5xl mx-auto px-4">
+    <h2 class="text-2xl sm:text-3xl font-bold mb-2 text-center">校园二手，好物共享</h2>
+    <p class="text-blue-100 text-center mb-5 text-sm">河南工学院学子专属的闲置交易平台</p>
+    <div class="flex gap-2 max-w-2xl mx-auto mb-3">
+      <select id="searchCategory" class="px-3 py-3 rounded-xl text-gray-700 bg-white text-sm border-0 focus:ring-2 focus:ring-blue-300">
+        <option value="all">全部分类</option>
+        <option value="digital">数码产品</option>
+        <option value="book">教材书籍</option>
+        <option value="clothes">服饰鞋包</option>
+        <option value="life">生活用品</option>
+        <option value="sports">运动器材</option>
+      </select>
+      <input id="searchInput" type="text" placeholder="搜索你想要的..." class="flex-1 px-4 py-3 rounded-xl text-gray-700 text-sm border-0 focus:ring-2 focus:ring-blue-300">
+      <button onclick="doSearch()" class="px-6 py-3 bg-white text-blue-600 rounded-xl font-medium text-sm hover:bg-blue-50 transition btn-hover">搜索</button>
+    </div>
+    <!-- 高级筛选栏 -->
+    <div class="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto text-xs">
+      <select id="sortBy" onchange="doSearch()" class="px-3 py-1.5 rounded-lg text-gray-600 bg-white/90 text-xs border-0">
+        <option value="newest">最新发布</option>
+        <option value="price_asc">价格从低到高</option>
+        <option value="price_desc">价格从高到低</option>
+      </select>
+      <input id="priceMin" type="number" placeholder="最低价" onchange="doSearch()" class="w-20 px-2 py-1.5 rounded-lg text-gray-600 text-xs border-0">
+      <span class="text-white/60">—</span>
+      <input id="priceMax" type="number" placeholder="最高价" onchange="doSearch()" class="w-20 px-2 py-1.5 rounded-lg text-gray-600 text-xs border-0">
+      <select id="condFilter" onchange="doSearch()" class="px-2 py-1.5 rounded-lg text-gray-600 bg-white/90 text-xs border-0">
+        <option value="all">全部成色</option>
+        <option value="全新">全新</option>
+        <option value="9成新">9成新</option>
+        <option value="8成新">8成新</option>
+        <option value="7成新">7成新</option>
+      </select>
+      <button onclick="resetSearch()" class="px-3 py-1.5 bg-white/20 rounded-lg text-xs hover:bg-white/30 transition">重置</button>
+    </div>
+  </div>
+</section>
+
+<!-- 分类快捷入口 -->
+<section class="max-w-6xl mx-auto px-4 -mt-5">
+  <div class="grid grid-cols-5 gap-2 sm:gap-3">
+    <div onclick="quickFilter('digital')" class="cursor-pointer bg-white rounded-xl p-3 sm:p-4 text-center shadow-sm hover:shadow-md transition">
+      <div class="text-xl sm:text-2xl mb-1">💻</div>
+      <div class="text-xs sm:text-sm text-gray-600">数码产品</div>
+    </div>
+    <div onclick="quickFilter('book')" class="cursor-pointer bg-white rounded-xl p-3 sm:p-4 text-center shadow-sm hover:shadow-md transition">
+      <div class="text-xl sm:text-2xl mb-1">📚</div>
+      <div class="text-xs sm:text-sm text-gray-600">教材书籍</div>
+    </div>
+    <div onclick="quickFilter('clothes')" class="cursor-pointer bg-white rounded-xl p-3 sm:p-4 text-center shadow-sm hover:shadow-md transition">
+      <div class="text-xl sm:text-2xl mb-1">👗</div>
+      <div class="text-xs sm:text-sm text-gray-600">服饰鞋包</div>
+    </div>
+    <div onclick="quickFilter('life')" class="cursor-pointer bg-white rounded-xl p-3 sm:p-4 text-center shadow-sm hover:shadow-md transition">
+      <div class="text-xl sm:text-2xl mb-1">🏠</div>
+      <div class="text-xs sm:text-sm text-gray-600">生活用品</div>
+    </div>
+    <div onclick="quickFilter('sports')" class="cursor-pointer bg-white rounded-xl p-3 sm:p-4 text-center shadow-sm hover:shadow-md transition">
+      <div class="text-xl sm:text-2xl mb-1">⚽</div>
+      <div class="text-xs sm:text-sm text-gray-600">运动器材</div>
+    </div>
+  </div>
+</section>
+
+<!-- 商品列表 -->
+<section class="max-w-6xl mx-auto px-4 mt-8">
+  <div class="flex items-center justify-between mb-4">
+    <h3 id="listTitle" class="text-lg font-bold text-gray-800">最新发布</h3>
+    <span id="resultCount" class="text-sm text-gray-400"></span>
+  </div>
+  <!-- 骨架屏 -->
+  <div id="skeletonGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+  <div id="productList" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" style="display:none"></div>
+  <div id="emptyTip" class="hidden text-center py-16 text-gray-400">
+    <div class="text-5xl mb-4">📦</div>
+    <p>暂无相关商品</p>
+    <p class="text-sm mt-1">试试其他分类或关键词</p>
+  </div>
+</section>
+
+<!-- 热门推荐 -->
+<section id="hotSection" class="max-w-6xl mx-auto px-4 mt-10">
+  <h3 class="text-lg font-bold text-gray-800 mb-4">🔥 热门闲置推荐</h3>
+  <div id="hotSkeleton" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+  <div id="hotList" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" style="display:none"></div>
+</section>
+
+<div data-footer></div>
+
+<script src="js/script.js"></script>
+<script>
+// ---------- 骨架屏 ----------
+function renderSkeleton(containerId, count) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var html = '';
+  for (var i=0; i<count; i++) {
+    html += '<div class="bg-white rounded-xl shadow-sm overflow-hidden animate-pulse"><div class="h-40 bg-gray-200"></div><div class="p-3 space-y-2"><div class="h-4 bg-gray-200 rounded w-3/4"></div><div class="h-5 bg-gray-200 rounded w-1/3"></div><div class="flex justify-between"><div class="h-3 bg-gray-100 rounded w-1/4"></div><div class="h-3 bg-gray-100 rounded w-1/5"></div></div></div></div>';
+  }
+  el.innerHTML = html;
+}
+
+function hideSkeleton(skeletonId, realId) {
+  var sk = document.getElementById(skeletonId);
+  var rl = document.getElementById(realId);
+  if (sk) sk.style.display = 'none';
+  if (rl) rl.style.display = '';
+}
+
+// ---------- XSS安全渲染 ----------
+function renderProducts(list, containerId) {
+  var container = document.getElementById(containerId);
+  if (!container || !list.length) return;
+  container.innerHTML = list.map(function(p){
+    return '<a href="detail.html?id='+escHtml(p.id)+'" class="product-card bg-white rounded-xl shadow-sm overflow-hidden block">'+
+      '<div class="img-placeholder text-4xl">'+categoryIcon(p.category)+'</div>'+
+      '<div class="p-3">'+
+        '<h4 class="font-medium text-gray-800 text-sm line-clamp-2 mb-1">'+escHtml(p.name)+'</h4>'+
+        '<div class="flex items-center justify-between">'+
+          '<span class="text-red-500 font-bold text-lg">¥'+escHtml(String(p.price))+'</span>'+
+          '<span class="text-gray-400 text-xs">'+escHtml(p.condition)+'</span>'+
+        '</div>'+
+        '<div class="flex items-center justify-between mt-2 text-xs text-gray-400">'+
+          '<span>'+escHtml(p.sellerName)+'</span>'+
+          '<span>'+timeAgo(p.createdAt)+'</span>'+
+        '</div>'+
+      '</div></a>';
+  }).join('');
+}
+
+function categoryIcon(cat) {
+  var icons = { digital:'💻', book:'📚', clothes:'👗', life:'🏠', sports:'⚽' };
+  return icons[cat] || '📦';
+}
+
+function timeAgo(dateStr) {
+  var diff = Date.now() - new Date(dateStr).getTime();
+  var days = Math.floor(diff/86400000);
+  if (days===0) return '今天';
+  if (days===1) return '昨天';
+  if (days<7) return days+'天前';
+  return Math.floor(days/7)+'周前';
+}
+
+function categoryName(cat) {
+  var names = { digital:'数码产品', book:'教材书籍', clothes:'服饰鞋包', life:'生活用品', sports:'运动器材' };
+  return names[cat]||cat;
+}
+
+function getFilter() {
+  var kw = document.getElementById('searchInput').value.trim();
+  var cat = document.getElementById('searchCategory').value;
+  var sort = document.getElementById('sortBy').value;
+  var pmin = document.getElementById('priceMin').value;
+  var pmax = document.getElementById('priceMax').value;
+  var cond = document.getElementById('condFilter').value;
+  return { keyword:kw, category:(cat==='all'?'':cat), sort:sort, priceMin:pmin, priceMax:pmax, condition:(cond==='all'?'':cond) };
+}
+
+function applyFilter(list, f) {
+  if (f.priceMin) list = list.filter(function(p){ return p.price >= Number(f.priceMin); });
+  if (f.priceMax) list = list.filter(function(p){ return p.price <= Number(f.priceMax); });
+  if (f.condition) list = list.filter(function(p){ return p.condition === f.condition; });
+  if (f.sort==='price_asc') list.sort(function(a,b){ return a.price-b.price; });
+  else if (f.sort==='price_desc') list.sort(function(a,b){ return b.price-a.price; });
+  else list.sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); });
+  return list;
+}
+
+function loadProducts() {
+  var f = getFilter();
+  var list = getProducts({ keyword:f.keyword, category:f.category });
+  list = applyFilter(list, f);
+  document.getElementById('resultCount').textContent = '共 '+list.length+' 件';
+  document.getElementById('emptyTip').classList.toggle('hidden', list.length>0);
+  document.getElementById('productList').classList.toggle('hidden', list.length===0);
+  var title = '最新发布';
+  if (f.category) title = categoryName(f.category)+' · 最新发布';
+  if (f.keyword) title = '搜索 "'+f.keyword+'" 的结果';
+  document.getElementById('listTitle').textContent = title;
+  hideSkeleton('skeletonGrid','productList');
+  renderProducts(list, 'productList');
+}
+
+function doSearch() { loadProducts(); }
+
+function resetSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchCategory').value = 'all';
+  document.getElementById('sortBy').value = 'newest';
+  document.getElementById('priceMin').value = '';
+  document.getElementById('priceMax').value = '';
+  document.getElementById('condFilter').value = 'all';
+  loadProducts();
+}
+
+function quickFilter(cat) {
+  document.getElementById('searchCategory').value = cat;
+  document.getElementById('searchInput').value = '';
+  document.getElementById('sortBy').value = 'newest';
+  document.getElementById('priceMin').value = '';
+  document.getElementById('priceMax').value = '';
+  document.getElementById('condFilter').value = 'all';
+  loadProducts();
+  window.scrollTo({ top:400, behavior:'smooth' });
+}
+
+function loadHot() {
+  var list = getProducts();
+  list.sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); });
+  hideSkeleton('hotSkeleton','hotList');
+  renderProducts(list.slice(0,4), 'hotList');
+}
+
+document.getElementById('searchInput').addEventListener('keydown', function(e){
+  if (e.key==='Enter') doSearch();
+});
+
+// 初始加载：先显示骨架屏
+renderSkeleton('skeletonGrid', 8);
+renderSkeleton('hotSkeleton', 4);
+setTimeout(function(){
+  loadProducts();
+  loadHot();
+}, 300);
+
+// PWA Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.json">
+<title>管理员后台 - 河南工学院校园二手交易平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="css/style.css">
+<script>tailwind.config={theme:{extend:{colors:{hngxy:{blue:'#2563eb',light:'#eff6ff',dark:'#1e40af'}}}}}</script>
+</head>
+<body data-page="admin" class="bg-gray-50 min-h-screen flex flex-col">
+
+<div data-nav></div>
+
+<div id="adminContent" class="max-w-6xl mx-auto px-4 py-8 w-full">
+  <!-- JS动态渲染 -->
+</div>
+
+<div data-footer></div>
+
+<script src="js/script.js"></script>
+<script>
+(function(){
+  var cu = getCurrentUser();
+  if (!cu || cu.role !== 'admin') {
+    document.getElementById('adminContent').innerHTML = '<div class="text-center py-20"><div class="text-6xl mb-4">🚫</div><p class="text-xl text-gray-500">无权访问</p><p class="text-sm text-gray-400 mt-2">仅管理员可进入后台</p><a href="index.html" class="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded-xl">返回首页</a></div>';
+    return;
+  }
+  document.getElementById('adminContent').innerHTML = renderDashboard();
+})();
+
+function renderDashboard() {
+  var users = getAllUsers();
+  var products = getDB().products;
+  var orders = adminGetAllOrders();
+  var refunds = getRefunds();
+  var activeTab = window._adminTab || 'users';
+
+  var tabs = [
+    { id:'users',    label:'用户管理',  count:users.length+'人', icon:'👥' },
+    { id:'products', label:'商品管理',  count:products.length+'件', icon:'📦' },
+    { id:'orders',   label:'订单管理',  count:orders.length+'笔', icon:'📋' },
+    { id:'refunds',  label:'退款纠纷',  count:refunds.length+'笔', icon:'💰' },
+  ];
+
+  var html = '<h2 class="text-xl font-bold text-gray-800 mb-6">管理员后台</h2>';
+
+  // 统计卡
+  html += '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">';
+  tabs.forEach(function(t){
+    var c = t.id === activeTab ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white';
+    html += '<div onclick="switchTab(\''+t.id+'\')" class="cursor-pointer rounded-xl p-4 border-2 '+c+' hover:shadow-md transition"><div class="text-2xl mb-1">'+t.icon+'</div><div class="font-bold text-gray-800">'+t.count+'</div><div class="text-xs text-gray-400">'+t.label+'</div></div>';
+  });
+  html += '</div>';
+
+  // 内容区
+  if (activeTab === 'users')       html += renderUsersTab(users);
+  else if (activeTab === 'products') html += renderProductsTab(products);
+  else if (activeTab === 'orders')   html += renderOrdersTab(orders, users);
+  else if (activeTab === 'refunds')  html += renderRefundsTab(refunds);
+
+  return html;
+}
+
+function switchTab(tab) { window._adminTab = tab; document.getElementById('adminContent').innerHTML = renderDashboard(); }
+
+function renderUsersTab(users) {
+  var html = '<div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="px-6 py-4 border-b"><h3 class="font-bold text-gray-800">用户列表</h3></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-500 text-xs uppercase"><th class="px-4 py-3 text-left">用户名</th><th class="px-4 py-3 text-left">手机号</th><th class="px-4 py-3 text-left">角色</th><th class="px-4 py-3 text-left">状态</th><th class="px-4 py-3 text-left">注册时间</th><th class="px-4 py-3 text-right">操作</th></tr></thead><tbody>';
+  users.forEach(function(u){
+    html += '<tr class="border-t hover:bg-gray-50"><td class="px-4 py-3 font-medium">'+u.username+(u.role==='admin'?' <span class="text-xs text-red-500">(管理员)</span>':'')+'</td><td class="px-4 py-3 text-gray-500">'+u.phone+'</td><td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-full '+(u.role==='admin'?'bg-red-50 text-red-600':'bg-blue-50 text-blue-600')+'">'+u.role+'</span></td><td class="px-4 py-3">'+(u.banned?'<span class="text-xs px-2 py-0.5 rounded-full bg-red-50 text-red-600">已封禁</span>':'<span class="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600">正常</span>')+'</td><td class="px-4 py-3 text-gray-400">'+new Date(u.createdAt).toLocaleDateString('zh-CN')+'</td><td class="px-4 py-3 text-right">'+(u.role!=='admin'?'<button onclick="doBan(\''+u.id+'\')" class="px-3 py-1 text-xs rounded-lg '+(u.banned?'bg-green-50 text-green-600 hover:bg-green-100':'bg-red-50 text-red-500 hover:bg-red-100')+' transition">'+(u.banned?'解封':'封禁')+'</button>':'<span class="text-xs text-gray-300">-</span>')+'</td></tr>';
+  });
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function renderProductsTab(products) {
+  var html = '<div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="px-6 py-4 border-b"><h3 class="font-bold text-gray-800">商品列表</h3></div><div class="divide-y">';
+  if (!products.length) { html += '<p class="text-center text-gray-400 text-sm py-8">暂无商品</p>'; }
+  else {
+    products.forEach(function(p){
+      html += '<div class="p-4 flex items-center gap-3 hover:bg-gray-50"><div class="flex-1 min-w-0"><h4 class="font-medium text-gray-800 text-sm truncate">'+p.name+'</h4><div class="flex items-center gap-2 mt-1 text-xs text-gray-400"><span class="text-red-500 font-bold">¥'+p.price+'</span><span>卖家：'+p.sellerName+'</span><span class="px-1.5 py-0.5 rounded '+(p.status==='active'?'bg-green-50 text-green-600':'p.status==='locked'?'bg-yellow-50 text-yellow-600':'bg-gray-50 text-gray-400')+'">'+(p.status==='active'?'在售':p.status==='locked'?'交易中':'下架')+'</span></div></div><button onclick="doDeleteProduct(\''+p.id+'\')" class="px-3 py-1 text-xs bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition flex-shrink-0">删除</button></div>';
+    });
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function renderOrdersTab(orders) {
+  var statusNames = { paid:'已付款', shipped:'已发货', completed:'已完成', cancelled:'已取消' };
+  var html = '<div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="px-6 py-4 border-b"><h3 class="font-bold text-gray-800">全部订单</h3></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-500 text-xs uppercase"><th class="px-4 py-3 text-left">商品</th><th class="px-4 py-3 text-left">金额</th><th class="px-4 py-3 text-left">买家</th><th class="px-4 py-3 text-left">卖家</th><th class="px-4 py-3 text-left">状态</th><th class="px-4 py-3 text-left">时间</th><th class="px-4 py-3 text-right">操作</th></tr></thead><tbody>';
+  if (!orders.length) { html += '<tr><td colspan="7" class="text-center text-gray-400 py-8">暂无订单</td></tr>'; }
+  else {
+    orders.forEach(function(o){
+      html += '<tr class="border-t hover:bg-gray-50"><td class="px-4 py-3 font-medium truncate max-w-[120px]">'+o.productName+'</td><td class="px-4 py-3 text-red-500 font-medium">¥'+o.price+'</td><td class="px-4 py-3">'+o.buyerName+'</td><td class="px-4 py-3">'+o.sellerName+'</td><td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded-full '+(ORDER_STATUS[o.status]||{}).bg+' '+(ORDER_STATUS[o.status]||{}).color+'">'+(statusNames[o.status]||o.status)+'</span></td><td class="px-4 py-3 text-gray-400 text-xs">'+new Date(o.createdAt).toLocaleDateString('zh-CN')+'</td><td class="px-4 py-3 text-right">'+(o.status==='paid'||o.status==='shipped'?'<button onclick="doRefund(\''+o.id+'\')" class="px-3 py-1 text-xs bg-orange-50 text-orange-500 rounded-lg hover:bg-orange-100 transition">强制退款</button>':'<span class="text-xs text-gray-300">-</span>')+'</td></tr>';
+    });
+  }
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+function renderRefundsTab(refunds) {
+  var html = '<div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="px-6 py-4 border-b"><h3 class="font-bold text-gray-800">退款记录</h3></div><div class="divide-y">';
+  if (!refunds.length) { html += '<p class="text-center text-gray-400 text-sm py-8">暂无退款纠纷</p>'; }
+  else {
+    refunds.forEach(function(r){
+      html += '<div class="p-4"><div class="flex items-center justify-between"><span class="font-medium text-gray-800">'+r.productName+'</span><span class="text-red-500 font-bold">¥'+r.price+'</span></div><div class="flex items-center gap-4 mt-1 text-xs text-gray-400"><span>买家：'+r.buyerName+'</span><span>卖家：'+r.sellerName+'</span><span>处理时间：'+new Date(r.resolvedAt).toLocaleString('zh-CN')+'</span></div></div>';
+    });
+  }
+  html += '</div></div>';
+  return html;
+}
+
+// 管理员操作
+function doBan(uid) {
+  if (!confirm('确认封禁/解封该用户？')) return;
+  adminBanUser(uid);
+  showToast('操作成功');
+  document.getElementById('adminContent').innerHTML = renderDashboard();
+}
+
+function doDeleteProduct(pid) {
+  if (!confirm('确认删除该商品？此操作不可恢复。')) return;
+  adminDeleteProduct(pid);
+  showToast('商品已删除');
+  document.getElementById('adminContent').innerHTML = renderDashboard();
+}
+
+function doRefund(oid) {
+  if (!confirm('确认强制退款？资金将退回买家，商品恢复上架。')) return;
+  adminRefundOrder(oid);
+  showToast('退款已处理');
+  document.getElementById('adminContent').innerHTML = renderDashboard();
+}
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+}
+</script>
+</body>
+</html>

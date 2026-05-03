@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.json">
+<title>登录 - 河南工学院校园二手交易平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="css/style.css">
+<script>tailwind.config={theme:{extend:{colors:{hngxy:{blue:'#2563eb',light:'#eff6ff',dark:'#1e40af'}}}}}</script>
+</head>
+<body data-page="login" class="bg-gray-50 min-h-screen flex flex-col">
+
+<div data-nav></div>
+
+<div class="flex-1 flex items-center justify-center px-4 py-8">
+  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md animate-slide-up">
+    <div class="text-center mb-6">
+      <img src="images/emblem.jpg" alt="校徽" class="w-16 h-16 rounded-2xl object-cover mx-auto mb-3">
+      <h2 class="text-xl font-bold text-gray-800">欢迎回来</h2>
+      <p class="text-gray-400 text-sm mt-1">登录你的河南工学院账号</p>
+    </div>
+
+    <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+        <input type="text" id="loginUsername" placeholder="请输入用户名" required
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+        <input type="password" id="loginPassword" placeholder="请输入密码" required
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+      </div>
+      <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition btn-hover">
+        登录
+      </button>
+    </form>
+
+    <div class="flex items-center gap-3 my-6">
+      <div class="flex-1 h-px bg-gray-200"></div>
+      <span class="text-xs text-gray-400">快捷登录</span>
+      <div class="flex-1 h-px bg-gray-200"></div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <button onclick="handleQuickLogin('微信')" class="flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-green-200 text-green-600 font-medium text-sm hover:bg-green-50 transition btn-hover">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.952-7.062-6.122zm-4.218.932c.534 0 .967.44.967.982a.975.975 0 0 1-.967.983.975.975 0 0 1-.968-.983c0-.542.434-.982.968-.982zm4.578 0c.535 0 .968.44.968.982a.975.975 0 0 1-.968.983.975.975 0 0 1-.967-.983c0-.542.433-.982.967-.982z"/></svg>
+        微信登录
+      </button>
+      <button onclick="handleQuickLogin('QQ')" class="flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-blue-200 text-blue-600 font-medium text-sm hover:bg-blue-50 transition btn-hover">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" opacity=".2"/><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879-.11-.937-.21-2.374.045-3.396.228-.917 1.47-6.225 1.47-6.225s-.375-.75-.375-1.858c0-1.74 1.01-3.04 2.266-3.04 1.068 0 1.584.802 1.584 1.764 0 1.074-.685 2.68-1.038 4.167-.295 1.246.625 2.262 1.854 2.262 2.226 0 3.724-2.858 3.724-6.245 0-2.575-1.735-4.504-4.89-4.504-3.565 0-5.787 2.66-5.787 5.636 0 1.026.304 1.75.78 2.31.086.103.098.193.072.298-.08.333-.26 1.062-.298 1.214-.046.197-.156.238-.36.143-1.342-.625-2.18-2.583-2.18-4.157 0-3.384 2.46-6.49 7.094-6.49 3.726 0 6.62 2.654 6.62 6.204 0 3.703-2.334 6.682-5.573 6.682-1.087 0-2.11-.565-2.46-1.233l-.67 2.55c-.242.932-.894 2.098-1.332 2.81A10.003 10.003 0 0 0 22 12c0-5.523-4.477-10-10-10z"/></svg>
+        QQ登录
+      </button>
+    </div>
+
+    <p class="text-center text-sm text-gray-400 mt-6">
+      没有账号？<a href="register.html" class="text-blue-600 hover:underline font-medium">去注册</a>
+    </p>
+  </div>
+</div>
+
+<div data-footer></div>
+
+<script src="js/script.js"></script>
+<script>
+async function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  if (!username || !password) { showToast('请填写账号和密码', 'error'); return; }
+  const result = await loginUser(username, password);
+  if (result.ok) {
+    showToast('登录成功！欢迎回来');
+    setTimeout(() => { window.location.href = 'index.html'; }, 800);
+  } else {
+    showToast(result.msg, 'error');
+  }
+}
+
+function handleQuickLogin(provider) {
+  const result = quickLogin(provider);
+  if (result.ok) {
+    showToast(provider + '快捷登录成功！');
+    setTimeout(() => { window.location.href = 'index.html'; }, 800);
+  }
+}
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+}
+</script>
+</body>
+</html>

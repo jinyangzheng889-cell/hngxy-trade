@@ -1,0 +1,14 @@
+{
+  "name": "河南工学院校园二手交易平台",
+  "short_name": "二手交易",
+  "description": "河南工学院学子专属的校园闲置交易平台",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f0f4ff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "images/emblem.jpg", "sizes": "192x192", "type": "image/jpeg" },
+    { "src": "images/emblem.jpg", "sizes": "512x512", "type": "image/jpeg" }
+  ]
+}

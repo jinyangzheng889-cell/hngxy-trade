@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.json">
+<title>发布闲置 - 河南工学院校园二手交易平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="css/style.css">
+<script>tailwind.config={theme:{extend:{colors:{hngxy:{blue:'#2563eb',light:'#eff6ff',dark:'#1e40af'}}}}}</script>
+</head>
+<body data-page="publish" class="bg-gray-50 min-h-screen flex flex-col">
+
+<div data-nav></div>
+
+<div class="max-w-2xl mx-auto px-4 py-8 w-full">
+  <div class="bg-white rounded-2xl shadow-sm p-6 sm:p-8 animate-slide-up">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">发布闲置商品</h2>
+
+    <form id="publishForm" class="space-y-5" onsubmit="handlePublish(event)">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">商品名称 <span class="text-red-400">*</span></label>
+        <input type="text" id="prodName" placeholder="例如：二手iPhone 13" required
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">售价（元）<span class="text-red-400">*</span></label>
+          <input type="number" id="prodPrice" placeholder="0.00" required min="0" step="0.01"
+            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">商品分类 <span class="text-red-400">*</span></label>
+          <select id="prodCategory" required
+            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition bg-white">
+            <option value="">请选择</option>
+            <option value="digital">数码产品</option>
+            <option value="book">教材书籍</option>
+            <option value="clothes">服饰鞋包</option>
+            <option value="life">生活用品</option>
+            <option value="sports">运动器材</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">成色 <span class="text-red-400">*</span></label>
+        <div class="flex gap-3 flex-wrap">
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="condition" value="全新" required class="accent-blue-600"> <span class="text-sm">全新</span></label>
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="condition" value="9成新" class="accent-blue-600"> <span class="text-sm">9成新</span></label>
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="condition" value="8成新" class="accent-blue-600"> <span class="text-sm">8成新</span></label>
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="condition" value="7成新" class="accent-blue-600"> <span class="text-sm">7成新</span></label>
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" name="condition" value="6成新及以下" class="accent-blue-600"> <span class="text-sm">6成新及以下</span></label>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">详细描述 <span class="text-red-400">*</span></label>
+        <textarea id="prodDesc" rows="4" placeholder="请详细描述商品的使用情况、购买时间、有无瑕疵等" required
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition resize-none"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">商品图片（3-6张，每张≤2MB）<span class="text-red-400">*</span></label>
+        <input type="file" id="prodImages" accept="image/*" multiple onchange="previewImages(event)"
+          class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 transition">
+        <p id="imgHint" class="text-xs text-gray-400 mt-1">至少上传3张图片，最多6张，支持JPG/PNG格式</p>
+        <div id="imagePreview" class="preview-grid mt-3"></div>
+      </div>
+
+      <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition btn-hover">
+        立即发布
+      </button>
+    </form>
+  </div>
+</div>
+
+<div data-footer></div>
+
+<script src="js/script.js"></script>
+<script>
+const MAX_IMAGES = 6, MIN_IMAGES = 3, MAX_SIZE = 2 * 1024 * 1024;
+
+function compressImage(file, maxSize) {
+  return new Promise(function(resolve){
+    if (file.size <= maxSize) { resolve(file); return; }
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function(){
+      URL.revokeObjectURL(url);
+      var canvas = document.createElement('canvas');
+      var scale = Math.sqrt(maxSize / file.size) * 0.85;
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(function(blob){
+        if (blob && blob.size <= maxSize) { resolve(blob); }
+        else { resolve(file); } // fallback: 压缩后仍超大就用原图
+      }, 'image/jpeg', 0.75);
+    };
+    img.src = url;
+  });
+}
+
+function previewImages(event) {
+  var files = Array.from(event.target.files);
+  var container = document.getElementById('imagePreview');
+  var hint = document.getElementById('imgHint');
+
+  if (files.length > MAX_IMAGES) { hint.textContent = '最多只能上传' + MAX_IMAGES + '张图片'; hint.className = 'text-xs text-red-500 mt-1'; event.target.value = ''; return; }
+
+  hint.textContent = '处理中...';
+  hint.className = 'text-xs text-blue-500 mt-1';
+
+  Promise.all(files.map(function(f){ return compressImage(f, MAX_SIZE); })).then(function(compressed){
+    var overSize = compressed.filter(function(f){ return f.size > MAX_SIZE; });
+    if (overSize.length) { hint.textContent = '有图片压缩后仍过大：' + overSize.map(function(f){return f.name;}).join(','); hint.className = 'text-xs text-red-500 mt-1'; return; }
+    hint.textContent = '已选择 ' + compressed.length + ' 张，至少需要' + MIN_IMAGES + '张（超2MB已自动压缩）';
+    hint.className = 'text-xs ' + (compressed.length >= MIN_IMAGES ? 'text-green-500' : 'text-yellow-600') + ' mt-1';
+    container.innerHTML = '';
+    compressed.forEach(function(blob, i){
+      var reader = new FileReader();
+      reader.onload = function(e){
+        var div = document.createElement('div');
+        div.className = 'relative aspect-square rounded-lg overflow-hidden bg-gray-100';
+        div.innerHTML = '<img src="'+e.target.result+'" class="w-full h-full object-cover"><span class="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1.5 py-0.5 rounded">'+(i+1)+'/'+compressed.length+'</span>';
+        container.appendChild(div);
+      };
+      reader.readAsDataURL(blob);
+    });
+  });
+}
+
+function handlePublish(e) {
+  e.preventDefault();
+  if (!requireLogin()) return;
+
+  var name = document.getElementById('prodName').value.trim();
+  var price = parseFloat(document.getElementById('prodPrice').value);
+  var category = document.getElementById('prodCategory').value;
+  var condition = document.querySelector('input[name="condition"]:checked')?.value;
+  var desc = document.getElementById('prodDesc').value.trim();
+
+  if (!name || isNaN(price) || !category || !condition || !desc) { showToast('请完整填写所有必填字段', 'error'); return; }
+  if (price <= 0) { showToast('价格必须大于0', 'error'); return; }
+
+  var previewImgs = document.querySelectorAll('#imagePreview img');
+  if (previewImgs.length < MIN_IMAGES) { showToast('请至少上传' + MIN_IMAGES + '张商品图片', 'error'); return; }
+
+  var images = [];
+  previewImgs.forEach(function(img){ images.push(img.src); });
+
+  addProduct({ name:name, price:price, category:category, condition:condition, desc:desc, images:images });
+  showToast('发布成功！');
+  setTimeout(function(){ window.location.href = 'index.html'; }, 800);
+}
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+}
+</script>
+</body>
+</html>

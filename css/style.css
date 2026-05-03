@@ -1,0 +1,111 @@
+/* ========== 河南工学院校园二手交易平台 - 公共样式 ========== */
+
+/* 自定义动画 */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float-up {
+  0% { transform: translateY(0); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+  100% { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,.12); }
+}
+.animate-fade-in { animation: fade-in 0.4s ease-out; }
+.animate-slide-up { animation: slide-up 0.5s ease-out; }
+
+/* 商品卡片悬浮效果 */
+.product-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+/* 商品占位图 */
+.img-placeholder {
+  background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 50%, #eff6ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #93a3bb;
+  font-size: 2.5rem;
+  min-height: 180px;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+/* 导航链接 */
+.nav-link {
+  color: #4b5563;
+  font-weight: 500;
+}
+.nav-link:hover {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+/* 聊天气泡 */
+.chat-bubble-left {
+  background: #f3f4f6;
+  color: #1f2937;
+  border-radius: 4px 16px 16px 16px;
+  padding: 10px 16px;
+  max-width: 75%;
+  align-self: flex-start;
+}
+.chat-bubble-right {
+  background: #2563eb;
+  color: #fff;
+  border-radius: 16px 4px 16px 16px;
+  padding: 10px 16px;
+  max-width: 75%;
+  align-self: flex-end;
+}
+
+/* 输入框聚焦效果 */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* 按钮动效 */
+.btn-hover {
+  transition: all 0.2s;
+}
+.btn-hover:hover {
+  transform: translateY(-1px);
+}
+.btn-hover:active {
+  transform: translateY(0);
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* 响应式图片预览网格 */
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+}
+
+/* 留言列表 */
+.comment-item {
+  animation: fade-in 0.3s ease;
+}
+
+/* 手机端底部导航适配 */
+@media (max-width: 640px) {
+  .hide-mobile { display: none !important; }
+  .product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  }
+}
