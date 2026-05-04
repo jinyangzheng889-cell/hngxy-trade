@@ -79,9 +79,11 @@
 
 <div data-footer></div>
 
+<script src="js/api.js"></script>
 <script src="js/script.js"></script>
 <script>
-const MAX_IMAGES = 6, MIN_IMAGES = 3, MAX_SIZE = 2 * 1024 * 1024;
+var MAX_IMAGES = 6, MIN_IMAGES = 3, MAX_SIZE = 2 * 1024 * 1024;
+var pendingBlobs = [];
 
 function compressImage(file, maxSize) {
   return new Promise(function(resolve){
@@ -98,7 +100,7 @@ function compressImage(file, maxSize) {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       canvas.toBlob(function(blob){
         if (blob && blob.size <= maxSize) { resolve(blob); }
-        else { resolve(file); } // fallback: 压缩后仍超大就用原图
+        else { resolve(file); }
       }, 'image/jpeg', 0.75);
     };
     img.src = url;
@@ -117,9 +119,10 @@ function previewImages(event) {
 
   Promise.all(files.map(function(f){ return compressImage(f, MAX_SIZE); })).then(function(compressed){
     var overSize = compressed.filter(function(f){ return f.size > MAX_SIZE; });
-    if (overSize.length) { hint.textContent = '有图片压缩后仍过大：' + overSize.map(function(f){return f.name;}).join(','); hint.className = 'text-xs text-red-500 mt-1'; return; }
+    if (overSize.length) { hint.textContent = '有图片压缩后仍过大'; hint.className = 'text-xs text-red-500 mt-1'; return; }
     hint.textContent = '已选择 ' + compressed.length + ' 张，至少需要' + MIN_IMAGES + '张（超2MB已自动压缩）';
     hint.className = 'text-xs ' + (compressed.length >= MIN_IMAGES ? 'text-green-500' : 'text-yellow-600') + ' mt-1';
+    pendingBlobs = compressed;
     container.innerHTML = '';
     compressed.forEach(function(blob, i){
       var reader = new FileReader();
@@ -134,7 +137,7 @@ function previewImages(event) {
   });
 }
 
-function handlePublish(e) {
+async function handlePublish(e) {
   e.preventDefault();
   if (!requireLogin()) return;
 
@@ -146,16 +149,23 @@ function handlePublish(e) {
 
   if (!name || isNaN(price) || !category || !condition || !desc) { showToast('请完整填写所有必填字段', 'error'); return; }
   if (price <= 0) { showToast('价格必须大于0', 'error'); return; }
+  if (pendingBlobs.length < MIN_IMAGES) { showToast('请至少上传' + MIN_IMAGES + '张商品图片', 'error'); return; }
 
-  var previewImgs = document.querySelectorAll('#imagePreview img');
-  if (previewImgs.length < MIN_IMAGES) { showToast('请至少上传' + MIN_IMAGES + '张商品图片', 'error'); return; }
+  var fd = new FormData();
+  fd.append('name', name);
+  fd.append('price', String(price));
+  fd.append('category', category);
+  fd.append('condition', condition);
+  fd.append('description', desc);
+  pendingBlobs.forEach(function(blob, i){ fd.append('images', blob, 'image_' + i + '.jpg'); });
 
-  var images = [];
-  previewImgs.forEach(function(img){ images.push(img.src); });
-
-  addProduct({ name:name, price:price, category:category, condition:condition, desc:desc, images:images });
-  showToast('发布成功！');
-  setTimeout(function(){ window.location.href = 'index.html'; }, 800);
+  var result = await addProduct(fd);
+  if (result && result.ok) {
+    showToast('发布成功！');
+    setTimeout(function(){ window.location.href = 'index.html'; }, 800);
+  } else {
+    showToast((result && result.msg) || '发布失败', 'error');
+  }
 }
 </script>
 <script>

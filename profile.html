@@ -20,6 +20,7 @@
 
 <div data-footer></div>
 
+<script src="js/api.js"></script>
 <script src="js/script.js"></script>
 <script>
 const currentUser = getCurrentUser();
@@ -37,11 +38,11 @@ if (!currentUser) {
 
 const ORDER_STATUS = { paid:{ label:'已付款·资金托管', icon:'🔒', color:'text-yellow-600', bg:'bg-yellow-50' }, shipped:{ label:'卖家已发货', icon:'📦', color:'text-blue-600', bg:'bg-blue-50' }, completed:{ label:'交易完成', icon:'✅', color:'text-green-600', bg:'bg-green-50' }, cancelled:{ label:'已取消', icon:'❌', color:'text-gray-400', bg:'bg-gray-50' } };
 
-function renderProfile() {
-  const myProducts = getProducts({ sellerId: currentUser.id });
-  const myFavorites = getMyFavorites();
-  const buyOrders = getBuyOrders();
-  const sellOrders = getSellOrders();
+async function renderProfile() {
+  const myProducts = await getProducts({ sellerId: currentUser.id });
+  const myFavorites = await getMyFavorites();
+  const buyOrders = await getBuyOrders();
+  const sellOrders = await getSellOrders();
 
   document.getElementById('profileContent').innerHTML = `
     <!-- 个人信息卡片 -->

@@ -20,12 +20,14 @@
 
 <div data-footer></div>
 
+<script src="js/api.js"></script>
 <script src="js/script.js"></script>
 <script>
+(async function(){
 const params = new URLSearchParams(window.location.search);
 const productId = params.get('id');
-const product = getProductById(productId);
-const currentUser = getCurrentUser();
+var currentUser = getCurrentUser();
+var product = await getProductById(productId);
 
 if (!product) {
   document.getElementById('detailContent').innerHTML = `
@@ -33,12 +35,12 @@ if (!product) {
       <div class="text-6xl mb-4">😕</div>
       <p class="text-xl text-gray-500">商品不存在或已下架</p>
       <a href="index.html" class="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">返回首页</a>
-    </div>`;
-} else {
-  const faved = isFaved(product.id);
-  const comments = getComments(product.id);
-  renderDetail(product, faved, comments);
+    </div>`; return;
 }
+var faved = await isFaved(product.id);
+var comments = await getComments(product.id);
+renderDetail(product, faved, comments);
+})();
 
 function renderDetail(p, faved, comments) {
   const catNames = { digital:'数码产品', book:'教材书籍', clothes:'服饰鞋包', life:'生活用品', sports:'运动器材' };

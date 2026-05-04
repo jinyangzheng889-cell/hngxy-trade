@@ -20,6 +20,7 @@
 
 <div data-footer></div>
 
+<script src="js/api.js"></script>
 <script src="js/script.js"></script>
 <script>
 (function(){
@@ -28,14 +29,14 @@
     document.getElementById('adminContent').innerHTML = '<div class="text-center py-20"><div class="text-6xl mb-4">🚫</div><p class="text-xl text-gray-500">无权访问</p><p class="text-sm text-gray-400 mt-2">仅管理员可进入后台</p><a href="index.html" class="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded-xl">返回首页</a></div>';
     return;
   }
-  document.getElementById('adminContent').innerHTML = renderDashboard();
+  renderDashboard().then(function(html){ document.getElementById('adminContent').innerHTML = html; });
 })();
 
-function renderDashboard() {
-  var users = getAllUsers();
-  var products = getDB().products;
-  var orders = adminGetAllOrders();
-  var refunds = getRefunds();
+async function renderDashboard() {
+  var users = await getAllUsers();
+  var products = (await getProducts()) || [];
+  var orders = await adminGetAllOrders();
+  var refunds = [];
   var activeTab = window._adminTab || 'users';
 
   var tabs = [
@@ -64,7 +65,7 @@ function renderDashboard() {
   return html;
 }
 
-function switchTab(tab) { window._adminTab = tab; document.getElementById('adminContent').innerHTML = renderDashboard(); }
+function switchTab(tab) { window._adminTab = tab; renderDashboard().then(function(html){ document.getElementById('adminContent').innerHTML = html; }); }
 
 function renderUsersTab(users) {
   var html = '<div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="px-6 py-4 border-b"><h3 class="font-bold text-gray-800">用户列表</h3></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-500 text-xs uppercase"><th class="px-4 py-3 text-left">用户名</th><th class="px-4 py-3 text-left">手机号</th><th class="px-4 py-3 text-left">角色</th><th class="px-4 py-3 text-left">状态</th><th class="px-4 py-3 text-left">注册时间</th><th class="px-4 py-3 text-right">操作</th></tr></thead><tbody>';
@@ -117,21 +118,21 @@ function doBan(uid) {
   if (!confirm('确认封禁/解封该用户？')) return;
   adminBanUser(uid);
   showToast('操作成功');
-  document.getElementById('adminContent').innerHTML = renderDashboard();
+  renderDashboard().then(function(html){ document.getElementById('adminContent').innerHTML = html; });
 }
 
 function doDeleteProduct(pid) {
   if (!confirm('确认删除该商品？此操作不可恢复。')) return;
   adminDeleteProduct(pid);
   showToast('商品已删除');
-  document.getElementById('adminContent').innerHTML = renderDashboard();
+  renderDashboard().then(function(html){ document.getElementById('adminContent').innerHTML = html; });
 }
 
 function doRefund(oid) {
   if (!confirm('确认强制退款？资金将退回买家，商品恢复上架。')) return;
   adminRefundOrder(oid);
   showToast('退款已处理');
-  document.getElementById('adminContent').innerHTML = renderDashboard();
+  renderDashboard().then(function(html){ document.getElementById('adminContent').innerHTML = html; });
 }
 </script>
 <script>

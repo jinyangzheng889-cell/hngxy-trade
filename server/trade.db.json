@@ -1,0 +1,130 @@
+{
+  "users": [
+    {
+      "id": "u_admin",
+      "username": "admin",
+      "phone_enc": "WV1fSElvREJRVFU=",
+      "pw_hash": "$2a$10$LR6Xg7q6QcpiaillDzBn9e4AmKRwZP9e0lV9KQxp6L2kEx9vaNmjm",
+      "role": "admin",
+      "banned": false,
+      "avatar": "",
+      "created_at": "2026-05-03T16:07:16.134Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "p_seed1",
+      "name": "二手笔记本电脑",
+      "price": 1500,
+      "category": "digital",
+      "condition": "8成新",
+      "description": "联想ThinkPad，i5处理器，8G内存，256G固态",
+      "seller_id": "sys_demo",
+      "seller_name": "小李同学",
+      "images": "[]",
+      "status": "active",
+      "created_at": "2026-05-01T16:07:16.136Z"
+    },
+    {
+      "id": "p_seed2",
+      "name": "高等数学（第七版）上册",
+      "price": 15,
+      "category": "book",
+      "condition": "9成新",
+      "description": "只用了一学期，几乎全新，没有笔记划痕",
+      "seller_id": "sys_demo",
+      "seller_name": "老王",
+      "images": "[]",
+      "status": "active",
+      "created_at": "2026-04-28T16:07:16.136Z"
+    },
+    {
+      "id": "p_seed3",
+      "name": "美利达山地自行车",
+      "price": 450,
+      "category": "sports",
+      "condition": "7成新",
+      "description": "26寸山地车，变速正常，刹车灵敏，送车锁",
+      "seller_id": "sys_demo",
+      "seller_name": "骑行爱好者",
+      "images": "[]",
+      "status": "active",
+      "created_at": "2026-04-30T16:07:16.137Z"
+    },
+    {
+      "id": "p_seed4",
+      "name": "宿舍用迷你小风扇",
+      "price": 25,
+      "category": "life",
+      "condition": "9成新",
+      "description": "USB接口，三档风速，静音设计",
+      "seller_id": "sys_demo",
+      "seller_name": "小张",
+      "images": "[]",
+      "status": "active",
+      "created_at": "2026-05-02T16:07:16.137Z"
+    },
+    {
+      "id": "p_seed5",
+      "name": "机械键盘 Cherry轴",
+      "price": 200,
+      "category": "digital",
+      "condition": "8成新",
+      "description": "IKBC C87，Cherry红轴，PBT键帽",
+      "seller_id": "sys_demo",
+      "seller_name": "码农小王",
+      "images": "[]",
+      "status": "active",
+      "created_at": "2026-04-26T16:07:16.137Z"
+    },
+    {
+      "id": "p_seed6",
+      "name": "大学英语四级词汇书",
+      "price": 10,
+      "category": "book",
+      "condition": "7成新",
+      "description": "新东方四级词汇词根+联想记忆法",
+      "seller_id": "sys_demo",
+      "seller_name": "英语达人",
+      "images": "[]",
+      "status": "active",
+      "created_at": "2026-04-29T16:07:16.138Z"
+    },
+    {
+      "id": "p_seed7",
+      "name": "冬季棉服外套",
+      "price": 60,
+      "category": "clothes",
+      "condition": "8成新",
+      "description": "男生L码，穿过一季，洗干净了",
+      "seller_id": "sys_demo",
+      "seller_name": "阿杰",
+      "images": "[]",
+      "status": "active",
+      "created_at": "2026-04-27T16:07:16.138Z"
+    },
+    {
+      "id": "p_seed8",
+      "name": "瑜伽垫 加厚10mm",
+      "price": 30,
+      "category": "sports",
+      "condition": "9成新",
+      "description": "买来只用了几次，加厚防滑，送收纳绑带",
+      "seller_id": "sys_demo",
+      "seller_name": "爱运动的女孩",
+      "images": "[]",
+      "status": "active",
+      "created_at": "2026-05-01T16:07:16.138Z"
+    }
+  ],
+  "orders": [],
+  "comments": [],
+  "favorites": [],
+  "messages": [],
+  "smsCodes": {
+    "13117382437": {
+      "code": "781923",
+      "expires": 1777824943339
+    }
+  }
+}

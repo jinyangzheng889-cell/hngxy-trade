@@ -104,6 +104,7 @@
 
 <div data-footer></div>
 
+<script src="js/api.js"></script>
 <script src="js/script.js"></script>
 <script>
 // ---------- 骨架屏 ----------
@@ -184,9 +185,9 @@ function applyFilter(list, f) {
   return list;
 }
 
-function loadProducts() {
+async function loadProducts() {
   var f = getFilter();
-  var list = getProducts({ keyword:f.keyword, category:f.category });
+  var list = await getProducts({ keyword:f.keyword, category:f.category });
   list = applyFilter(list, f);
   document.getElementById('resultCount').textContent = '共 '+list.length+' 件';
   document.getElementById('emptyTip').classList.toggle('hidden', list.length>0);
@@ -222,8 +223,8 @@ function quickFilter(cat) {
   window.scrollTo({ top:400, behavior:'smooth' });
 }
 
-function loadHot() {
-  var list = getProducts();
+async function loadHot() {
+  var list = await getProducts();
   list.sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); });
   hideSkeleton('hotSkeleton','hotList');
   renderProducts(list.slice(0,4), 'hotList');
