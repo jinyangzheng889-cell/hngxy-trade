@@ -138,5 +138,10 @@
       "expires": 1777864326526
     }
   },
-  "emailCodes": {}
+  "emailCodes": {
+    "3628029594@qq.com": {
+      "code": "986392",
+      "expires": 1777869090118
+    }
+  }
 }
