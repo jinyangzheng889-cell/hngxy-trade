@@ -1,5 +1,5 @@
 /* ========== API 客户端 ========== */
-const API = 'http://localhost:3456/api';
+const API = '/api';
 
 function api(path, opts) {
   opts = opts || {};
