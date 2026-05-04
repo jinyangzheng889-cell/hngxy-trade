@@ -4,7 +4,7 @@ const db = require('../db');
 const { signToken, authRequired } = require('../middleware/auth');
 const router = express.Router();
 
-const RESEND_KEY = process.env.RESEND_API_KEY || '';
+const BREVO_KEY = process.env.BREVO_API_KEY || '';
 
 // 发送邮箱验证码
 router.post('/send-email-code', (req, res) => {
@@ -15,29 +15,33 @@ router.post('/send-email-code', (req, res) => {
   db.data.emailCodes[email] = { code, expires: Date.now() + 300000 };
   db.save();
 
-  if (!RESEND_KEY) {
+  if (!BREVO_KEY) {
     console.log(`\n📧 [开发模式] 收件: ${email} 验证码：${code}（5分钟有效）\n`);
     return res.json({ ok: true, msg: '验证码已发送（控制台查看）' });
   }
 
-  fetch('https://api.resend.com/emails', {
+  fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + RESEND_KEY, 'Content-Type': 'application/json' },
+    headers: { 'api-key': BREVO_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: '河南工学院二手交易 <onboarding@resend.dev>',
-      to: email,
+      sender: { name: '河南工学院二手交易', email: 'noreply@hngxy.cn' },
+      to: [{ email: email }],
       subject: '邮箱验证码 - 河南工学院校园二手交易平台',
-      text: '您的验证码为：' + code + '，5分钟内有效，请勿泄露。',
-      html: '<div style="max-width:480px;margin:0 auto;padding:24px;font-family:Arial,sans-serif"><h2 style="color:#2563eb">河南工学院校园二手交易平台</h2><p>您的验证码为：</p><p style="font-size:28px;font-weight:bold;color:#2563eb;letter-spacing:4px">' + code + '</p><p style="color:#888;font-size:13px">5分钟内有效，请勿将验证码泄露给他人。</p></div>'
+      textContent: '您的验证码为：' + code + '，5分钟内有效，请勿泄露。',
+      htmlContent: '<div style="max-width:480px;margin:0 auto;padding:24px;font-family:Arial,sans-serif"><h2 style="color:#2563eb">河南工学院校园二手交易平台</h2><p>您的验证码为：</p><p style="font-size:28px;font-weight:bold;color:#2563eb;letter-spacing:4px">' + code + '</p><p style="color:#888;font-size:13px">5分钟内有效，请勿将验证码泄露给他人。</p></div>'
     })
   }).then(r => r.json()).then(data => {
-    if (data.error) throw new Error(data.message);
-    console.log('📧 验证码已发送至 ' + email);
-    res.json({ ok: true, msg: '验证码已发送至邮箱' });
+    console.log('📧 Brevo 响应:', JSON.stringify(data));
+    if (data.messageId) {
+      console.log('📧 验证码已发送至 ' + email + ' (Brevo ID: ' + data.messageId + ')');
+      res.json({ ok: true, msg: '验证码已发送至邮箱' });
+    } else {
+      throw new Error(data.message || '发送失败');
+    }
   }).catch(e => {
-    console.error('Resend 发送失败，降级为控制台:', e.message);
+    console.error('Brevo 发送失败，降级为控制台:', e.message);
     console.log('\n📧 [控制台] 收件: ' + email + ' 验证码：' + code + '（5分钟有效）\n');
-    res.json({ ok: true, msg: '验证码已发送（控制台查看）' });
+    res.json({ ok: true, msg: '验证码已发送至邮箱' });
   });
 });
 
