@@ -24,7 +24,7 @@ router.post('/send-email-code', (req, res) => {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + RESEND_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: '河南工学院二手交易 <noreply@hngxy-trade.onrender.com>',
+      from: '河南工学院二手交易 <onboarding@resend.dev>',
       to: email,
       subject: '邮箱验证码 - 河南工学院校园二手交易平台',
       text: '您的验证码为：' + code + '，5分钟内有效，请勿泄露。',
