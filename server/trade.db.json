@@ -9,6 +9,17 @@
       "banned": false,
       "avatar": "",
       "created_at": "2026-05-03T16:07:16.134Z"
+    },
+    {
+      "id": "u_1777866728540",
+      "username": "testuser",
+      "phone_enc": "WV1eSElvRENQVVQ=",
+      "email": "test@qq.com",
+      "pw_hash": "$2a$10$jadcIpd68BrrIWNB5zDmce6VpzS4lvsr/DrbLVwbAYmKsiAOfJMci",
+      "role": "user",
+      "banned": false,
+      "avatar": "",
+      "created_at": "2026-05-04T03:52:08.540Z"
     }
   ],
   "products": [
@@ -123,8 +134,9 @@
   "messages": [],
   "smsCodes": {
     "13117382437": {
-      "code": "781923",
-      "expires": 1777824943339
+      "code": "689667",
+      "expires": 1777864326526
     }
-  }
+  },
+  "emailCodes": {}
 }

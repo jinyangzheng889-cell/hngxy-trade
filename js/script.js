@@ -7,8 +7,8 @@ function escHtml(s) {
 }
 
 // ---------- 用户认证（桥接 API）----------
-async function registerUser(username, phone, password, smsCode) {
-  try { var r = await apiRegister(username, phone, password, smsCode); return r; }
+async function registerUser(username, email, phone, password, emailCode) {
+  try { var r = await apiRegister(username, email, phone, password, emailCode); return r; }
   catch(e) { return { ok: false, msg: e.message }; }
 }
 

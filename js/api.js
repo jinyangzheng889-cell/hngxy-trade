@@ -21,8 +21,8 @@ function api(path, opts) {
 }
 
 // ---------- 认证 ----------
-function apiSendSMS(phone) { return api('/send-sms', { method: 'POST', body: { phone: phone } }); }
-function apiRegister(username, phone, password, smsCode) { return api('/register', { method: 'POST', body: { username: username, phone: phone, password: password, smsCode: smsCode } }); }
+function apiSendEmailCode(email) { return api('/send-email-code', { method: 'POST', body: { email: email } }); }
+function apiRegister(username, email, phone, password, emailCode) { return api('/register', { method: 'POST', body: { username: username, email: email, phone: phone, password: password, emailCode: emailCode } }); }
 function apiLogin(phone, password) {
   return api('/login', { method: 'POST', body: { phone: phone, password: password } }).then(function(data) {
     localStorage.setItem('hngxy_token', data.token);

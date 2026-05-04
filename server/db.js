@@ -10,12 +10,20 @@ let data = {
   comments: [],
   favorites: [],
   messages: [],
-  smsCodes: {}
+  emailCodes: {}
 };
 
+var defaultData = { users:[], products:[], orders:[], comments:[], favorites:[], messages:[], emailCodes:{} };
+
 function load() {
-  try { if (fs.existsSync(DB_PATH)) data = JSON.parse(fs.readFileSync(DB_PATH, 'utf8')); }
-  catch(e) { console.error('DB load error:', e.message); }
+  try {
+    if (fs.existsSync(DB_PATH)) {
+      var loaded = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+      // 合并默认结构，确保新增字段存在
+      for (var k in defaultData) { if (!loaded[k]) loaded[k] = defaultData[k]; }
+      data = loaded;
+    }
+  } catch(e) { console.error('DB load error:', e.message); }
 }
 
 function save() {
@@ -61,7 +69,7 @@ var adminExists = findOne('users', function(u){ return u.username === 'admin'; }
 if (!adminExists) {
   var bcrypt = require('bcryptjs');
   var hash = bcrypt.hashSync('admin123', 10);
-  insert('users', { id:'u_admin', username:'admin', phone_enc:encPhone('13800000000'), pw_hash:hash, role:'admin', banned:false, avatar:'', created_at:new Date().toISOString() });
+  insert('users', { id:'u_admin', username:'admin', phone_enc:encPhone('13800000000'), email:'admin@example.com', pw_hash:hash, role:'admin', banned:false, avatar:'', created_at:new Date().toISOString() });
 
   var seed = [
     ['p_seed1','二手笔记本电脑',1500,'digital','8成新','联想ThinkPad，i5处理器，8G内存，256G固态','sys_demo','小李同学',2],
