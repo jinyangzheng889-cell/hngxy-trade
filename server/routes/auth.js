@@ -17,8 +17,8 @@ router.post('/send-email-code', (req, res) => {
   db.save();
 
   if (!BREVO_KEY) {
-    console.log(`\n📧 [开发模式] 收件: ${email} 验证码：${code}（5分钟有效）\n`);
-    return res.json({ ok: true, msg: '验证码已发送（控制台查看）' });
+    console.log(`\n📧 [DEV] 收件: ${email} 验证码: ${code} (5分钟有效)\n`);
+    return res.json({ ok: true, msg: '验证码已发送', dev: true, code: code });
   }
 
   const payload = JSON.stringify({

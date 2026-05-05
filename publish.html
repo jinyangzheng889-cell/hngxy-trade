@@ -63,6 +63,23 @@
       </div>
 
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">交易地点 <span class="text-red-400">*</span></label>
+        <select id="prodLocation" onchange="onLocationChange()"
+          class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition bg-white">
+          <option value="">请选择交易地点</option>
+          <option value="图书馆门口">图书馆门口</option>
+          <option value="第一食堂">第一食堂</option>
+          <option value="第二食堂">第二食堂</option>
+          <option value="教学楼A区">教学楼A区</option>
+          <option value="操场">操场</option>
+          <option value="宿舍楼门口">宿舍楼门口</option>
+          <option value="__custom__">自定义地点...</option>
+        </select>
+        <input type="text" id="prodLocationCustom" placeholder="请输入自定义交易地点" style="display:none"
+          class="w-full mt-2 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+      </div>
+
+      <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">商品图片（3-6张，每张≤2MB）<span class="text-red-400">*</span></label>
         <input type="file" id="prodImages" accept="image/*" multiple onchange="previewImages(event)"
           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 transition">
@@ -84,6 +101,17 @@
 <script>
 var MAX_IMAGES = 6, MIN_IMAGES = 3, MAX_SIZE = 2 * 1024 * 1024;
 var pendingBlobs = [];
+
+function onLocationChange() {
+  var sel = document.getElementById('prodLocation');
+  var custom = document.getElementById('prodLocationCustom');
+  if (sel.value === '__custom__') {
+    custom.style.display = '';
+    custom.focus();
+  } else {
+    custom.style.display = 'none';
+  }
+}
 
 function compressImage(file, maxSize) {
   return new Promise(function(resolve){
@@ -146,8 +174,10 @@ async function handlePublish(e) {
   var category = document.getElementById('prodCategory').value;
   var condition = document.querySelector('input[name="condition"]:checked')?.value;
   var desc = document.getElementById('prodDesc').value.trim();
+  var locationSel = document.getElementById('prodLocation').value;
+  var location = locationSel === '__custom__' ? document.getElementById('prodLocationCustom').value.trim() : locationSel;
 
-  if (!name || isNaN(price) || !category || !condition || !desc) { showToast('请完整填写所有必填字段', 'error'); return; }
+  if (!name || isNaN(price) || !category || !condition || !desc || !location) { showToast('请完整填写所有必填字段', 'error'); return; }
   if (price <= 0) { showToast('价格必须大于0', 'error'); return; }
   if (pendingBlobs.length < MIN_IMAGES) { showToast('请至少上传' + MIN_IMAGES + '张商品图片', 'error'); return; }
 
@@ -157,6 +187,7 @@ async function handlePublish(e) {
   fd.append('category', category);
   fd.append('condition', condition);
   fd.append('description', desc);
+  fd.append('location', location);
   pendingBlobs.forEach(function(blob, i){ fd.append('images', blob, 'image_' + i + '.jpg'); });
 
   var result = await addProduct(fd);

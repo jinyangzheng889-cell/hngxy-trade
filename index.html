@@ -142,6 +142,7 @@ function renderProducts(list, containerId) {
           '<span>'+escHtml(p.sellerName)+'</span>'+
           '<span>'+timeAgo(p.createdAt)+'</span>'+
         '</div>'+
+        (p.location ? '<div class="mt-1.5 text-xs text-gray-400">📍 '+escHtml(p.location)+'</div>' : '')+
       '</div></a>';
   }).join('');
 }

@@ -52,6 +52,7 @@ function renderDetail(p, faved, comments) {
       <div class="bg-white rounded-2xl p-6 shadow-sm">
         <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">${p.name}</h1>
         <div class="text-3xl font-bold text-red-500 mb-4">¥${p.price}</div>
+        ${p.location ? `<div class="flex items-center gap-1.5 text-sm text-gray-500 mb-4"><span>📍</span><span>${escHtml(p.location)}</span></div>` : ''}
         <div class="flex flex-wrap gap-2 mb-4 text-sm">
           <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs">${catNames[p.category] || p.category}</span>
           <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">${p.condition}</span>
@@ -70,15 +71,11 @@ function renderDetail(p, faved, comments) {
           <button onclick="handleFav('${p.id}')" id="favBtn" class="px-4 py-3 rounded-xl font-medium text-sm transition btn-hover ${faved ? 'bg-red-50 text-red-500 border-2 border-red-200' : 'bg-gray-100 text-gray-600 border-2 border-gray-200'}">
             ${faved ? '❤️' : '🤍'}
           </button>
-          <button onclick="handleChat('${p.id}', '${p.sellerId}', '${p.sellerName}')" class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium text-sm hover:bg-gray-200 transition btn-hover">
-            立即私聊
+          <button onclick="handleChat('${p.id}', '${p.sellerId}', '${p.sellerName}')" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-medium text-sm hover:bg-blue-700 transition btn-hover">
+            💬 私聊卖家 · 线下交易
           </button>
-          ${currentUser && currentUser.id !== p.sellerId ? `
-          <button onclick="handleBuy('${p.id}')" class="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium text-sm hover:bg-red-600 transition btn-hover">
-            立即购买
-          </button>` : ''}
         </div>
-        ${!currentUser ? '<p class="text-xs text-gray-400 mt-2 text-center">登录后即可购买</p>' : ''}
+        ${!currentUser ? '<p class="text-xs text-gray-400 mt-2 text-center">登录后即可联系卖家</p>' : ''}
       </div>
     </div>
 
@@ -130,20 +127,6 @@ function handleFav(pid) {
     btn.className = 'flex-1 py-3 rounded-xl font-medium text-sm transition btn-hover bg-gray-100 text-gray-600 border-2 border-gray-200';
     btn.textContent = '🤍 收藏';
     showToast('已取消收藏');
-  }
-}
-
-function handleBuy(pid) {
-  if (!requireLogin()) return;
-  const p = getProductById(pid);
-  if (!p) { showToast('商品已不存在', 'error'); return; }
-  if (!confirm(`确认购买「${p.name}」？\n\n金额：¥${p.price}\n\n资金将托管在平台，待你确认收货后打款给卖家。`)) return;
-  const result = createOrder(pid);
-  if (result.ok) {
-    showToast('购买成功！资金已安全托管，请联系卖家发货');
-    setTimeout(() => { window.location.reload(); }, 1200);
-  } else {
-    showToast(result.msg, 'error');
   }
 }
 

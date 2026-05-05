@@ -36,13 +36,13 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', authRequired, upload.array('images', 6), (req, res) => {
-  const { name, price, category, condition, description } = req.body;
-  if (!name || !price || !category || !condition || !description) return res.status(400).json({ error: '请填写完整信息' });
+  const { name, price, category, condition, description, location } = req.body;
+  if (!name || !price || !category || !condition || !description || !location) return res.status(400).json({ error: '请填写完整信息' });
   if (isNaN(price) || Number(price) <= 0) return res.status(400).json({ error: '价格无效' });
   if (!req.files || req.files.length < 3) return res.status(400).json({ error: '请至少上传3张图片' });
   const id = 'p_' + Date.now();
   const images = req.files.map(f => '/uploads/' + f.filename);
-  db.insert('products', { id, name, price:Number(price), category, condition, description, seller_id:req.user.id, seller_name:req.user.username, images:JSON.stringify(images), status:'active', created_at:new Date().toISOString() });
+  db.insert('products', { id, name, price:Number(price), category, condition, description, location, seller_id:req.user.id, seller_name:req.user.username, images:JSON.stringify(images), status:'active', created_at:new Date().toISOString() });
   res.json({ ok: true, productId: id });
 });
 

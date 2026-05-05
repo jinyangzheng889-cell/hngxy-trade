@@ -36,13 +36,9 @@ if (!currentUser) {
   renderProfile();
 }
 
-const ORDER_STATUS = { paid:{ label:'已付款·资金托管', icon:'🔒', color:'text-yellow-600', bg:'bg-yellow-50' }, shipped:{ label:'卖家已发货', icon:'📦', color:'text-blue-600', bg:'bg-blue-50' }, completed:{ label:'交易完成', icon:'✅', color:'text-green-600', bg:'bg-green-50' }, cancelled:{ label:'已取消', icon:'❌', color:'text-gray-400', bg:'bg-gray-50' } };
-
 async function renderProfile() {
   const myProducts = await getProducts({ sellerId: currentUser.id });
   const myFavorites = await getMyFavorites();
-  const buyOrders = await getBuyOrders();
-  const sellOrders = await getSellOrders();
 
   document.getElementById('profileContent').innerHTML = `
     <!-- 个人信息卡片 -->
@@ -54,7 +50,7 @@ async function renderProfile() {
           <p class="text-blue-100 text-sm">${currentUser.phone ? '手机：' + currentUser.phone : '河南工学院'}</p>
         </div>
       </div>
-      <div class="grid grid-cols-4 gap-3 mt-6 text-center">
+      <div class="grid grid-cols-2 gap-3 mt-6 text-center">
         <div class="bg-white/10 rounded-xl py-3 backdrop-blur">
           <div class="text-2xl font-bold">${myProducts.length}</div>
           <div class="text-xs text-blue-100 mt-1">已发布</div>
@@ -63,42 +59,11 @@ async function renderProfile() {
           <div class="text-2xl font-bold">${myFavorites.length}</div>
           <div class="text-xs text-blue-100 mt-1">已收藏</div>
         </div>
-        <div class="bg-white/10 rounded-xl py-3 backdrop-blur">
-          <div class="text-2xl font-bold">${buyOrders.filter(o=>o.status!=='cancelled').length}</div>
-          <div class="text-xs text-blue-100 mt-1">已买到</div>
-        </div>
-        <div class="bg-white/10 rounded-xl py-3 backdrop-blur">
-          <div class="text-2xl font-bold">${sellOrders.filter(o=>o.status!=='cancelled').length}</div>
-          <div class="text-xs text-blue-100 mt-1">已卖出</div>
-        </div>
       </div>
     </div>
 
     <!-- 功能板块 -->
     <div class="space-y-4">
-      <!-- 我买到的（担保交易） -->
-      <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b flex items-center justify-between">
-          <h3 class="font-bold text-gray-800">🔒 我买到的</h3>
-          <span class="text-xs text-gray-400">${buyOrders.length} 笔订单</span>
-        </div>
-        ${buyOrders.length === 0 ? '<p class="text-center text-gray-400 text-sm py-8">暂无购买订单</p>' : ''}
-        <div class="divide-y">
-          ${buyOrders.map(o => renderOrder(o, 'buyer')).join('')}
-        </div>
-      </div>
-
-      <!-- 我卖出的 -->
-      <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b flex items-center justify-between">
-          <h3 class="font-bold text-gray-800">💰 我卖出的</h3>
-          <span class="text-xs text-gray-400">${sellOrders.length} 笔订单</span>
-        </div>
-        ${sellOrders.length === 0 ? '<p class="text-center text-gray-400 text-sm py-8">暂无卖出订单</p>' : ''}
-        <div class="divide-y">
-          ${sellOrders.map(o => renderOrder(o, 'seller')).join('')}
-        </div>
-      </div>
 
       <!-- 我的发布 -->
       <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
@@ -116,6 +81,7 @@ async function renderProfile() {
                 <div class="flex items-center gap-2 mt-1">
                   <span class="text-red-500 font-bold">¥${p.price}</span>
                   <span class="text-xs text-gray-400">${p.condition}</span>
+                  ${p.location ? `<span class="text-xs text-gray-400">📍 ${escHtml(p.location)}</span>` : ''}
                 </div>
               </div>
               <div class="flex gap-2 flex-shrink-0">
@@ -155,59 +121,6 @@ async function renderProfile() {
       </button>
     </div>
   `;
-}
-
-function renderOrder(o, role) {
-  const s = ORDER_STATUS[o.status] || ORDER_STATUS.paid;
-  let actions = '';
-  if (o.status === 'paid' && role === 'seller') {
-    actions = `<button onclick="shipOrder('${o.id}')" class="px-3 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">确认发货</button>`;
-  } else if (o.status === 'shipped' && role === 'buyer') {
-    actions = `<button onclick="receiveOrder('${o.id}')" class="px-3 py-1.5 text-xs bg-green-500 text-white rounded-lg hover:bg-green-600 transition">确认收货</button>`;
-  } else if (o.status === 'paid' && role === 'buyer') {
-    actions = `<button onclick="cancelOrder('${o.id}')" class="px-3 py-1.5 text-xs bg-gray-200 text-gray-500 rounded-lg hover:bg-gray-300 transition">取消订单</button>`;
-  }
-  return `
-    <div class="p-4 hover:bg-gray-50 transition">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-xs px-2 py-0.5 rounded-full ${s.bg} ${s.color}">${s.icon} ${s.label}</span>
-        <span class="text-xs text-gray-400">${new Date(o.createdAt).toLocaleString('zh-CN')}</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <div class="flex-1 min-w-0">
-          <h4 class="font-medium text-gray-800 text-sm truncate">${o.productName}</h4>
-          <div class="flex items-center gap-3 mt-1 text-xs text-gray-400">
-            <span class="text-red-500 font-bold">¥${o.price}</span>
-            <span>${role === 'buyer' ? '卖家：' + o.sellerName : '买家：' + o.buyerName}</span>
-          </div>
-        </div>
-        ${actions}
-      </div>
-    </div>`;
-}
-
-function shipOrder(oid) {
-  if (confirm('确认已发货？')) {
-    updateOrderStatus(oid, 'shipped');
-    showToast('已标记为发货');
-    renderProfile();
-  }
-}
-
-function receiveOrder(oid) {
-  if (confirm('确认收到商品？确认后资金将打款给卖家。')) {
-    updateOrderStatus(oid, 'completed');
-    showToast('交易完成！资金已打款给卖家');
-    renderProfile();
-  }
-}
-
-function cancelOrder(oid) {
-  if (confirm('确定取消订单？')) {
-    updateOrderStatus(oid, 'cancelled');
-    showToast('订单已取消');
-    renderProfile();
-  }
 }
 
 function catIcon(cat) {

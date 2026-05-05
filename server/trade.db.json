@@ -4,22 +4,12 @@
       "id": "u_admin",
       "username": "admin",
       "phone_enc": "WV1fSElvREJRVFU=",
-      "pw_hash": "$2a$10$LR6Xg7q6QcpiaillDzBn9e4AmKRwZP9e0lV9KQxp6L2kEx9vaNmjm",
+      "email": "admin@example.com",
+      "pw_hash": "$2a$10$oVX/PNo.MbMJU27RyT6hEu4FIsBpLSyqUcDFdlH7ba7rQK4hDoGRK",
       "role": "admin",
       "banned": false,
       "avatar": "",
-      "created_at": "2026-05-03T16:07:16.134Z"
-    },
-    {
-      "id": "u_1777866728540",
-      "username": "testuser",
-      "phone_enc": "WV1eSElvRENQVVQ=",
-      "email": "test@qq.com",
-      "pw_hash": "$2a$10$jadcIpd68BrrIWNB5zDmce6VpzS4lvsr/DrbLVwbAYmKsiAOfJMci",
-      "role": "user",
-      "banned": false,
-      "avatar": "",
-      "created_at": "2026-05-04T03:52:08.540Z"
+      "created_at": "2026-05-05T05:23:14.074Z"
     }
   ],
   "products": [
@@ -30,11 +20,12 @@
       "category": "digital",
       "condition": "8成新",
       "description": "联想ThinkPad，i5处理器，8G内存，256G固态",
+      "location": "图书馆门口",
       "seller_id": "sys_demo",
       "seller_name": "小李同学",
       "images": "[]",
       "status": "active",
-      "created_at": "2026-05-01T16:07:16.136Z"
+      "created_at": "2026-05-03T05:23:14.076Z"
     },
     {
       "id": "p_seed2",
@@ -43,11 +34,12 @@
       "category": "book",
       "condition": "9成新",
       "description": "只用了一学期，几乎全新，没有笔记划痕",
+      "location": "教学楼A区",
       "seller_id": "sys_demo",
       "seller_name": "老王",
       "images": "[]",
       "status": "active",
-      "created_at": "2026-04-28T16:07:16.136Z"
+      "created_at": "2026-04-30T05:23:14.076Z"
     },
     {
       "id": "p_seed3",
@@ -56,11 +48,12 @@
       "category": "sports",
       "condition": "7成新",
       "description": "26寸山地车，变速正常，刹车灵敏，送车锁",
+      "location": "操场",
       "seller_id": "sys_demo",
       "seller_name": "骑行爱好者",
       "images": "[]",
       "status": "active",
-      "created_at": "2026-04-30T16:07:16.137Z"
+      "created_at": "2026-05-02T05:23:14.076Z"
     },
     {
       "id": "p_seed4",
@@ -69,11 +62,12 @@
       "category": "life",
       "condition": "9成新",
       "description": "USB接口，三档风速，静音设计",
+      "location": "宿舍楼门口",
       "seller_id": "sys_demo",
       "seller_name": "小张",
       "images": "[]",
       "status": "active",
-      "created_at": "2026-05-02T16:07:16.137Z"
+      "created_at": "2026-05-04T05:23:14.077Z"
     },
     {
       "id": "p_seed5",
@@ -82,11 +76,12 @@
       "category": "digital",
       "condition": "8成新",
       "description": "IKBC C87，Cherry红轴，PBT键帽",
+      "location": "图书馆门口",
       "seller_id": "sys_demo",
       "seller_name": "码农小王",
       "images": "[]",
       "status": "active",
-      "created_at": "2026-04-26T16:07:16.137Z"
+      "created_at": "2026-04-28T05:23:14.077Z"
     },
     {
       "id": "p_seed6",
@@ -95,11 +90,12 @@
       "category": "book",
       "condition": "7成新",
       "description": "新东方四级词汇词根+联想记忆法",
+      "location": "教学楼A区",
       "seller_id": "sys_demo",
       "seller_name": "英语达人",
       "images": "[]",
       "status": "active",
-      "created_at": "2026-04-29T16:07:16.138Z"
+      "created_at": "2026-05-01T05:23:14.077Z"
     },
     {
       "id": "p_seed7",
@@ -108,11 +104,12 @@
       "category": "clothes",
       "condition": "8成新",
       "description": "男生L码，穿过一季，洗干净了",
+      "location": "第二食堂",
       "seller_id": "sys_demo",
       "seller_name": "阿杰",
       "images": "[]",
       "status": "active",
-      "created_at": "2026-04-27T16:07:16.138Z"
+      "created_at": "2026-04-29T05:23:14.078Z"
     },
     {
       "id": "p_seed8",
@@ -121,27 +118,36 @@
       "category": "sports",
       "condition": "9成新",
       "description": "买来只用了几次，加厚防滑，送收纳绑带",
+      "location": "操场",
       "seller_id": "sys_demo",
       "seller_name": "爱运动的女孩",
       "images": "[]",
       "status": "active",
-      "created_at": "2026-05-01T16:07:16.138Z"
+      "created_at": "2026-05-03T05:23:14.078Z"
+    },
+    {
+      "id": "p_1777958672835",
+      "name": "�������½�����Ʒ",
+      "price": 88,
+      "category": "life",
+      "condition": "9����",
+      "description": "����һ���������½��׵Ĳ�����Ʒ",
+      "location": "��һʳ��",
+      "seller_id": "u_admin",
+      "seller_name": "admin",
+      "images": "[\"/uploads/img_1777958672834_6y8bzh.jpg\",\"/uploads/img_1777958672834_d2eh60.jpg\",\"/uploads/img_1777958672834_0zrnyt.jpg\"]",
+      "status": "active",
+      "created_at": "2026-05-05T05:24:32.835Z"
     }
   ],
   "orders": [],
   "comments": [],
   "favorites": [],
   "messages": [],
-  "smsCodes": {
-    "13117382437": {
-      "code": "689667",
-      "expires": 1777864326526
-    }
-  },
   "emailCodes": {
-    "3628029594@qq.com": {
-      "code": "986392",
-      "expires": 1777869090118
+    "3419397152@qq.com": {
+      "code": "830261",
+      "expires": 1777959282713
     }
   }
 }
